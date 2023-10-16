@@ -607,6 +607,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
             modified = sanitizeKotlinSpecificNames(modified);
         }
 
+        if (datatype.contains("List") || datatype.contains("Array") || datatype.contans("Map"))
+            modified = makeNamePlural(modified);
+        
         switch (getEnumPropertyNaming()) {
             case original:
                 // NOTE: This is provided as a last-case allowance, but will still result in reserved words being escaped.
@@ -790,7 +793,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
         if (word.matches("^_*$")) {
             word = word.replaceAll("\\Q_\\E", "Underscore");
         }
-
+        
         return word;
     }
 
@@ -817,6 +820,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
         return start + newValue + end;
     }
 
+    private String makeNamePlural(String name) {
+        if (name.endsWith("s") || name.endsWith("x"))
+            return name + "es";
+        return name + "s";
+    }
+    
     private String recurseOnEndOfWord(String word, String oldValue, String newValue, int lastReplacedValue) {
         String end = word.substring(lastReplacedValue + 1);
         if (!end.isEmpty()) {
